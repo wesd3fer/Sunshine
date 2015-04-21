@@ -11,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -44,7 +45,8 @@ public class ForecastFragment extends Fragment {
     {
         super.onCreate(savedInstanceState);
 
-        // Allows fragment to handle menu items.
+        // Allows fragment to handle menu items. Tells the fragment
+        // that it has a menu to inflate
         setHasOptionsMenu(true);
     }
 
@@ -66,6 +68,8 @@ public class ForecastFragment extends Fragment {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -112,7 +116,12 @@ public class ForecastFragment extends Fragment {
         // Get a reference to the ListView and attach the adapter to it for displaying
         ListView listView = (ListView) rootView.findViewById(R.id.list_view_forecast);
         listView.setAdapter(forecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+            }
+        });
 
         return rootView;
     }
@@ -125,11 +134,16 @@ public class ForecastFragment extends Fragment {
         protected void onPostExecute(String[] result) {
             if (result != null)
             {
+
                 forecastAdapter.clear();
                 for (String dayForecastStr: result)
                 {
                     forecastAdapter.add(dayForecastStr);
                 }
+
+                // More efficient way of populating the listview... only for Honeycomb or above
+                //forecastAdapter.clear();
+                //forecastAdapter.addAll(result);
             }
         }
 
