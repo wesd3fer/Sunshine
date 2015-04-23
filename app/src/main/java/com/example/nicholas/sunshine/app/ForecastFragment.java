@@ -1,8 +1,11 @@
 package com.example.nicholas.sunshine.app;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,8 +66,7 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.action_refresh)
         {
-            FetchWeatherTask fetchWeather = new FetchWeatherTask();
-            fetchWeather.execute("85712");
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -78,29 +81,6 @@ public class ForecastFragment extends Fragment {
         // Set our main view in the activity to be the main fragment.
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        // Create an arbitrary data set for testing
-        String[] forecastArray = {
-                "Today - Sunny - 88/63",
-                "Tomorrow - Cloudy - 75/60",
-                "Saturday - Rainy - 72/65",
-                "Sunday - Rainy - 72/65",
-                "Monday - Rainy - 72/65",
-                "Tuesday - Rainy - 72/65",
-                "Wednesday - Rainy - 72/65",
-                "Thursday - Rainy - 72/65",
-                "Friday - Rainy - 72/65",
-                "Saturday - Rainy - 72/65",
-                "Sunday - Rainy - 72/65",
-                "Monday - Rainy - 72/65",
-                "Tuesday - Rainy - 72/65",
-                "Wednesday - Rainy - 72/65",
-                "Thursday - Rainy - 72/65",
-                "Friday - Rainy - 72/65",
-        };
-
-        // Store the data set as a List of Strings
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecastArray));
-
         // Create the adapter that will pair with the ListView to which we show the forecast.
         // The handles the GUI controls.
         forecastAdapter = new ArrayAdapter<String>(
@@ -111,7 +91,7 @@ public class ForecastFragment extends Fragment {
                 // The id of the textview to populate in the list item layout
                 R.id.list_item_forecast_textview,
                 // Data to populate the list
-                weekForecast);
+                new ArrayList<String>());
 
         // Get a reference to the ListView and attach the adapter to it for displaying
         ListView listView = (ListView) rootView.findViewById(R.id.list_view_forecast);
@@ -119,11 +99,39 @@ public class ForecastFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                String forecast = forecastAdapter.getItem(position);
+                //Toast.makeText(getActivity(), forecast, Toast.LENGTH_LONG).show();
+                Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(detailIntent);
             }
         });
 
         return rootView;
+    }
+
+    /**
+     * Helper method for displaying weather information. This method can
+     * be called to update the weather information displayed on screen
+     * whenever an update is necessary.
+     *
+     */
+    private void updateWeather()
+    {
+        FetchWeatherTask fetchWeather = new FetchWeatherTask();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        String postCode = sharedPreferences.getString(
+                getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        fetchWeather.execute(postCode);
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        updateWeather();
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -249,6 +257,26 @@ public class ForecastFragment extends Fragment {
          * Prepare the weather high/lows for presentation.
          */
         private String formatHighLows(double high, double low) {
+
+
+            // Data is fetched in Celsius by default. If the user prefers
+            // to see Fahrenheit, convert the values here.
+
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unitType = sharedPref.getString(
+                    getString(R.string.pref_temp_units_key),
+                    getString(R.string.pref_temp_units_metric));
+
+            if (unitType.equals(getString(R.string.pref_temp_units_imperial)))
+            {
+                high = (high * 1.8) + 32;
+                low = (low * 1.8) + 32;
+            }
+            else if (!unitType.equals(getString(R.string.pref_temp_units_metric)))
+            {
+                Log.d(LOG_TAG, "Unit type not found: " + unitType);
+            }
+
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
