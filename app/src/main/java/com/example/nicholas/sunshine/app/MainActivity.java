@@ -14,8 +14,10 @@ import android.view.MenuItem;
 public class MainActivity extends ActionBarActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "===== onCreate ===== method is called!");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
@@ -25,6 +27,35 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        Log.d(LOG_TAG, "===== onStop ===== method is called!");
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(LOG_TAG, "===== onPause ===== method is called!");
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(LOG_TAG, "===== onDestroy ===== method is called!");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onStart() {
+        Log.d(LOG_TAG, "===== onStart ===== method is called!");
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(LOG_TAG, "===== onResume ===== method is called!");
+        super.onResume();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

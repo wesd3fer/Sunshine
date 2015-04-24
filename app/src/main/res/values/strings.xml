@@ -13,6 +13,8 @@
     <!-- Menu items for refreshing... for debugging -->
     <string name="action_refresh" translatable="false">Refresh</string>
 
+    <string name="action_share">Share</string>
+
 
     <!-- ========== ACTIVITY STRINGS ========== -->
     <string name="title_activity_detail">DetailActivity</string>
