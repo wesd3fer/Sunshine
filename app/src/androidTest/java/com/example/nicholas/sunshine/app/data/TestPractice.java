@@ -26,6 +26,22 @@ public class TestPractice extends AndroidTestCase {
         }
     }
 
+    public void testThisYo() throws Throwable
+    {
+        int j = 2;
+        int k = 5;
+        int l = 90;
+        int m = 56;
+
+        assertTrue("Should be true", j < m);
+        assertFalse("Should be false", m <= k);
+
+        if (l < m)
+        {
+            fail("Should never have reached here");
+        }
+    }
+
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
